@@ -110,3 +110,19 @@ export function apilist() {
     method: 'get',
   })
 }
+
+// 获取模块列表
+export function modulelist() {
+  return request({
+    url: '/module/',
+    method: 'get',
+  })
+}
+
+// 获取环境名称
+export function envnamelist() {
+  return request({
+    url: '/envs/names/',
+    method: 'get',
+  })
+}

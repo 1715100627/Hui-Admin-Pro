@@ -30,7 +30,6 @@ const actions = {
         return new Promise((resolve, reject) => {
             login({ username: username.trim(), password: password }).then(response => {
                 let  data  = response
-                console.log(data)
                 sessionStorage.setItem('userData', JSON.stringify(data.userInfo))
                 sessionStorage.setItem('userToken', JSON.stringify(data.token))
                 commit('setUserData', data.userInfo)
