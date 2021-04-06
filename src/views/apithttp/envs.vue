@@ -227,10 +227,14 @@ export default {
           sortable: true,
         },
         {
-          title: "最近维护人",
-          key: "departmentTitle",
+          title: "描述",
+          key: "desc",
           width: 150,
           minWidth: 120,
+      render :(h,params) => {
+        return h('div' , params.row.desc || '-')
+          }
+
         },
         {
           title: "创建时间",
@@ -406,8 +410,7 @@ export default {
   methods: {
     getlist() {
       envlist().then(res => {
-        const data = res.data.data
-        this.data = data
+        this.data = res.data.data
       })
     },
 

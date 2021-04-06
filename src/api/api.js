@@ -72,7 +72,7 @@ export function projectr(data) {
 // 创建环境
 export function projectcr(data) {
   return request({
-    url: '/projects/',
+    url: '/projadd/',
     method: 'post',
     data
   })
@@ -89,7 +89,7 @@ export function projectde(id) {
 // 修改项目
 export function projectup(id,data) {
   return request({
-    url: '/projects/' + id + '/',
+    url: '/projadd/' + id + '/',
     method: 'put',
     data
   })
@@ -124,5 +124,15 @@ export function envnamelist() {
   return request({
     url: '/envs/names/',
     method: 'get',
+  })
+}
+
+
+// 查询项目下模块
+export function findmodule(id) {
+  return request({
+    url: '/module/'+id+'/findmodule/',
+    method: 'post',
+    data: {'projectId':id},
   })
 }

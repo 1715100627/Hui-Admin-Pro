@@ -52,7 +52,7 @@
                     <div>
                       <FormItem label="运行环境" prop="stenvs">
                         <Select v-model="crenvs.stenvs" multiple style="width:260px">
-                            <Option v-for="(item, key) in envsname" :value="item.id" :key="key">{{ item.name }}</Option>
+                          <Option v-for="(item, key) in envsname" :value="item.id" :key="key">{{ item.name }}</Option>
                         </Select>
                       </FormItem>
                     </div>
@@ -88,67 +88,63 @@
               </div>
 
 
-              <!--        编辑项目-->
-<!--              <div style="display: flex;justify-content: space-between">-->
-<!--                <Modal-->
-<!--                    width="950"-->
-<!--                    v-model="modal2"-->
-<!--                    title="编辑项目">-->
-<!--                  <Form ref="crenvs2" :model="crenvs2" :rules="ruleValidate2">-->
-<!--                    <div>-->
-<!--                      <FormItem label="项目名称" prop="name">-->
-<!--                        <Input-->
-<!--                            type="text"-->
-<!--                            v-model="crenvs2.name"-->
-<!--                            clearable-->
-<!--                            style="width: 800px"-->
-<!--                        />-->
-<!--                      </FormItem>-->
-<!--                    </div>-->
-<!--                    <div>-->
-<!--                      <FormItem label="应用名称" prop="publishapp">-->
-<!--                        <Input-->
-<!--                            type="text"-->
-<!--                            v-model="crenvs2.publishapp"-->
-<!--                            placeholder=""-->
-<!--                            clearable-->
-<!--                            style="width: 800px"-->
-<!--                        />-->
-<!--                      </FormItem>-->
-<!--                    </div>-->
+              <!--                      编辑项目-->
+              <div style="display: flex;justify-content: space-between">
+                <Modal
+                    width="950"
+                    v-model="modal2"
+                    title="编辑项目">
+                  <Form ref="crenvs2" :model="crenvs2" :rules="ruleValidate2">
+                    <div>
+                      <FormItem label="项目名称" prop="name">
+                        <Input
+                            type="text"
+                            v-model="crenvs2.name"
+                            clearable
+                            style="width: 800px"
+                        />
+                      </FormItem>
+                    </div>
+                    <div>
+                      <FormItem label="运行环境" prop="stenvs">
+                        <Select v-model="crenvs2.stenvs" multiple style="width:260px">
+                          <Option v-for="(item, key) in envsname2" :value="item.id" :key="key">{{ item.name }}</Option>
+                        </Select>
+                      </FormItem>
+                    </div>
 
-<!--                    <div>-->
-<!--                      <FormItem label="测试人员" prop="tester">-->
-<!--                        <Input-->
-<!--                            type="text"-->
-<!--                            v-model="crenvs2.tester"-->
-<!--                            placeholder=""-->
-<!--                            clearable-->
-<!--                            style="width: 800px"-->
-<!--                        />-->
-<!--                      </FormItem>-->
-<!--                    </div>-->
+                    <div>
+                      <FormItem label="负责人" prop="leader">
+                        <Input
+                            type="text"
+                            v-model="crenvs2.leader"
+                            placeholder=""
+                            clearable
+                            style="width: 800px;margin-left:14px"
+                        />
+                      </FormItem>
+                    </div>
 
-<!--                    <div>-->
-<!--                      <FormItem label="备注" style="margin-left: 38px;">-->
-<!--                        <Input-->
-<!--                            type="textarea"-->
-<!--                            v-model="crenvs2.desc"-->
-<!--                            rows="5"-->
-<!--                            style="width: 800px"-->
-<!--                        />-->
-<!--                      </FormItem>-->
-<!--                    </div>-->
-<!--                  </Form>-->
-<!--                  <div slot="footer">-->
-<!--                    <Button @click="cancel2">取消</Button>-->
-<!--                    <Button @click="sure2('crenvs2')" type="primary">确定</Button>-->
-<!--                  </div>-->
-<!--                </Modal>-->
-<!--              </div>-->
+                    <div>
+                      <FormItem label="备注" style="margin-left: 38px;">
+                        <Input
+                            type="textarea"
+                            v-model="crenvs2.desc"
+                            rows="5"
+                            style="width: 800px"
+                        />
+                      </FormItem>
+                    </div>
+                  </Form>
+                  <div slot="footer">
+                    <Button @click="cancel2">取消</Button>
+                    <Button @click="sure2('crenvs2')" type="primary">确定</Button>
+                  </div>
+                </Modal>
+              </div>
 
             </div>
-<!--            项目列表-->
+            <!--            项目列表-->
             <div class="pageContent">
               <Table
                   border
@@ -159,12 +155,12 @@
               >
                 <template slot-scope="{ row }" slot="name">
 
-                    <strong>{{ row.name }}</strong>
+                  <strong>{{ row.name }}</strong>
                 </template>
 
-                <template slot-scope="{ row }" slot="envs">
-                    <samp v-for="item in proenvsnames">
-                      {{item}}</samp>
+                <template slot-scope="{ row,index }" slot="envs">
+                  <samp v-for="item in row.envs">
+                    {{ item.name }}</samp>
                 </template>
               </Table>
             </div>
@@ -172,82 +168,94 @@
         </div>
       </TabPane>
 
-<!--      <TabPane label="模块管理" name="name2">-->
-<!--        <div class="user_list-page">-->
-<!--          <div class="user_list-page" style="margin-bottom: 20px;">-->
-<!--            <div class="pageHead">-->
-<!--              <p>模块查询</p>-->
-<!--            </div>-->
-<!--            <div class="pageHead">-->
-<!--              <Form ref="searchForm" :model="searchForm" inline :label-width="80">-->
-<!--                <FormItem label="所属项目" prop="name">-->
-<!--                  <Select v-model="setpname" clearable style="width:200px">-->
-<!--                    <Option v-for="(item, key) in projectList" :value="item.id" :key="key">{{ item.name }}</Option>-->
-<!--                  </Select>-->
-<!--                </FormItem>-->
+      <TabPane label="模块管理" name="name2">
+        <div class="user_list-page">
+          <div class="user_list-page" style="margin-bottom: 20px;">
+            <div class="pageHead">
+              <p>模块查询</p>
+            </div>
+            <div class="pageHead">
+              <Form ref="searchForm" :model="searchForm" inline :label-width="80">
+                <FormItem label="所属项目" prop="name">
+                  <Select v-model="setpname" clearable style="width:200px">
+                    <Option v-for="(item, key) in projectList" :value="item.id" :key="key">{{ item.name }}</Option>
+                  </Select>
+                </FormItem>
 
-<!--                <FormItem label="模块名称" prop="name">-->
-<!--                  <Input-->
-<!--                      type="text"-->
-<!--                      v-model="searchForm.module"-->
-<!--                      placeholder="请输入项目名称"-->
-<!--                      clearable-->
-<!--                      style="width: 200px"-->
-<!--                  />-->
-<!--                </FormItem>-->
+                <FormItem label="模块名称" prop="name">
+                  <Input
+                      type="text"
+                      v-model="searchForm.module"
+                      placeholder="请输入项目名称"
+                      clearable
+                      style="width: 200px"
+                  />
+                </FormItem>
 
-<!--                <FormItem style="margin-left: -35px" class="br">-->
-<!--                  <Button @click="handleSearch" type="primary" icon="ios-search" style="margin-right: 10px;"-->
-<!--                  >搜索-->
-<!--                  </Button>-->
-<!--                  <Button @click="handleReset">重置</Button>-->
-<!--                </FormItem>-->
-<!--              </Form>-->
-<!--            </div>-->
-<!--          </div>-->
+                <FormItem style="margin-left: -35px" class="br">
+                  <Button @click="handleSearch" type="primary" icon="ios-search" style="margin-right: 10px;"
+                  >搜索
+                  </Button>
+                  <Button @click="handleReset">重置</Button>
+                </FormItem>
+              </Form>
+            </div>
+          </div>
 
-<!--&lt;!&ndash;          模块列表&ndash;&gt;-->
-<!--          <div class="pageHead" style="padding-left: 0px;">-->
-<!--            <div class="pageHead">-->
-<!--              <div style="display: flex;justify-content: space-between">-->
-<!--                <p>模块列表</p>-->
-<!--                <Button type="primary" @click="clickme">{{modal3 ?'展开创建模块':'收起创建模块' }}</Button>-->
-<!--                <Drawer title="创建模块" placement="left" draggable :mask-closable="false" v-model="modal3" :mask=false>-->
+          <!--          模块列表-->
+          <div class="pageHead" style="padding-left: 0px;">
+            <div class="pageHead">
+              <div style="display: flex;justify-content: space-between">
+                <p>模块列表</p>
+                <Button type="primary" @click="clickme">{{ modal3 ? '收起创建模块' : '展开创建模块' }}</Button>
+                <Drawer title="创建模块" placement="left" draggable :mask-closable="false" v-model="modal3" :mask=false>
 
-<!--                  <div>-->
-<!--                    <Select v-model="crenvs.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil">-->
-<!--                      <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>-->
-<!--                    </Select>-->
-<!--                    <div style="border-bottom: 1px solid #e8eaec;margin:18px 0">-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                    <Tree :data="data1" empty-text="请先选择项目"></Tree>-->
-<!--                </Drawer>-->
-<!--              </div>-->
-<!--            </div>-->
+                  <div>
+                    <Select v-model="crenvs.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
+                            @on-change="moduproj(crenvs.stenvs)">
+                      <Option v-for="item in projectList" :value="item.id" :key="item.name">{{ item.name }}</Option>
+                    </Select>
+                    <div style="border-bottom: 1px solid #e8eaec;margin:18px 0">
+                    </div>
+                  </div>
+                  <Button long size='small' type="primary" v-if="Treedata.length === 0  ? false : true">创建根模块</Button>
+                  <Tree empty-text="请先选择项目" :data="Treedata" :render="renderTree" class="demo-tree-render"></Tree>
+                </Drawer>
+              </div>
+            </div>
 
 
-<!--            &lt;!&ndash;      列表渲染&ndash;&gt;-->
-<!--            <div class="pageContent">-->
-<!--              <Table-->
-<!--                  border-->
-<!--                  :columns="columns"-->
-<!--                  :data="data"-->
-<!--                  sortable="custom"-->
-<!--                  ref="table"-->
-<!--              >-->
-<!--              </Table>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </TabPane>-->
+            <!--      列表渲染-->
+            <div class="pageContent">
+              <Table
+                  border
+                  :columns="moduleList"
+                  :data="moduledata"
+                  sortable="custom"
+                  ref="table"
+              >
+              </Table>
+            </div>
+          </div>
+        </div>
+      </TabPane>
     </Tabs>
 
   </div>
 </template>
 
 <script>
-import { modulelist,projectlist,envnamelist, projectr, pronames, projectde, projectcr, projectup} from '../../api/api'
+import {
+  modulelist,
+  projectlist,
+  envnamelist,
+  projectr,
+  pronames,
+  projectde,
+  projectcr,
+  projectup,
+  findmodule
+} from '../../api/api'
 import MarkPoptip from '../../views/apithttp/poptip';
 
 
@@ -256,12 +264,14 @@ export default {
   modal_loading: false,
   data() {
     return {
-      proenvsnames:[],
-      stenvs:'',
-      envsname:[],
-      setpname:'',
-      projectList:[],
-      title1:true,
+      Treedata: [],
+      proenvsnames: [],
+      stenvs: '',
+      envsname: [],
+      envsname2: [],
+      setpname: '',
+      projectList: [],
+      title1: true,
       project_id: '',
       crenvs: {
         name: '',
@@ -271,7 +281,7 @@ export default {
       },
       crenvs2: {
         name: '',
-        stenvs: '',
+        stenvs: [],
         leader: '',
         desc: ''
       },
@@ -279,10 +289,11 @@ export default {
       modal2: false,
       modal3: false,
       data: [],
+      moduledata: [],
       enterTitle: '',
       searchForm: {
         title: '',
-        module:''
+        module: ''
         // 搜索框初始化对象
         // pageNumber: 1, // 当前页数
         // pageSize: 10, // 页面大小
@@ -311,19 +322,109 @@ export default {
           minWidth: 125,
           width: 350,
         },
-          {
-        title: "备注",
-        key: "desc",
-        align: "center",
-        sortType: "desc",
-        width: 400,
+        {
+          title: "备注",
+          key: "desc",
+          align: "center",
+          sortType: "desc",
+          width: 400,
+          render: (h, params) => {
+            return h('div', params.row.desc || '-')
+          }
         },
         {
-        title: "负责人",
-        key: "leader",
-        align: "center",
-        sortType: "desc",
-        width: 290,
+          title: "负责人",
+          key: "leader",
+          align: "center",
+          sortType: "desc",
+          width: 290,
+        },
+        {
+          title: "操作",
+          key: "action",
+          align: "center",
+          width: 150,
+          fixed: "right",
+          render: (h, params) => {
+            let enableOrDisable = "";
+            return h("div", [
+              h(
+                  "a",
+                  {
+
+                    on: {
+                      click: () => {
+                        this.edit('crenvs2', params.row);
+                      },
+                    },
+                  },
+                  "编辑"
+              ),
+              h("Divider", {
+                props: {
+                  type: "vertical",
+                },
+              }),
+              h('Poptip', {
+                style: {
+                  color: '#ED4014'
+                },
+                props: {
+                  confirm: true,
+                  transfer: true,
+                  placement: 'left-end',
+                  title: '确定要删除吗！',
+                  type: 'error',
+                  size: 'small',
+                },
+                on: {
+                  'on-ok': () => {
+                    this.remove(params.row);
+                  }
+                }
+              }, '删除'),
+            ])
+                ;
+
+          },
+        },
+      ],
+      moduleList: [
+        {
+          type: "index",
+          width: 60,
+          align: "center",
+        },
+        {
+          title: "模块名称",
+          key: "name",
+          align: "center",
+          minWidth: 125,
+          width: 300,
+        },
+        {
+          title: "所属项目",
+          key: 'project',
+          align: "center",
+          minWidth: 125,
+          width: 350,
+        },
+        {
+          title: "测试人员",
+          key: "tester",
+          align: "center",
+          sortType: "desc",
+          width: 400,
+          render: (h, params) => {
+            return h('div', params.row.desc || '-')
+          }
+        },
+        {
+          title: "备注",
+          key: "desc",
+          align: "center",
+          sortType: "desc",
+          width: 290,
         },
         {
           title: "操作",
@@ -380,7 +481,7 @@ export default {
           {required: true, message: '请输入项目名称', trigger: 'blur'}
         ],
         stenvs: [
-          {required: true, message: '请选择运行环境', trigger: 'blur',type:'date'},
+          {required: true, message: '请选择运行环境', trigger: 'blur', type: 'array'},
         ],
         leader: [
           {required: true, message: '请填写负责人', trigger: 'blur'},
@@ -390,11 +491,11 @@ export default {
         name: [
           {required: true, message: '请输入项目名称', trigger: 'blur'}
         ],
-        publishapp: [
-          {required: true, message: '请输入应用名称', trigger: 'blur'},
+        stenvs: [
+          {required: true, message: '请选择运行环境', trigger: 'blur', type: 'array'},
         ],
-        tester: [
-          {required: true, message: '请填写测试人员信息', trigger: 'blur'},
+        leader: [
+          {required: true, message: '请填写负责人', trigger: 'blur'},
         ],
       }
     }
@@ -403,59 +504,49 @@ export default {
     this.getprolist();
     this.proname();
     this.envnames();
+    this.module_list();
   },
   mounted() {
   },
   computed: {},
   methods: {
     envnames() {
-      envnamelist().then(res =>{
+      envnamelist().then(res => {
         this.envsname = res.data.data
       })
     },
     clickme() {
-      this.modal3 = ! this.modal3
+      console.log(this.Treedata === '')
+      this.modal3 = !this.modal3
     },
     getprolist() {
-       let da = []
-
       projectlist().then(res => {
         this.data = res.data.data
-        for (let i = 0; i < this.data.length; i++) {
-          for( let j =0; j< this.data[i].envs.length;j++){
-              da.push(this.data[i].envs[j].name)
-          }
-        }
-        this.proenvsnames = JSON.parse(JSON.stringify(da))
       })
-
 
 
     },
     proname() {
-        pronames().then(res => {
-          this.projectList = res.data.data
-        })
-      },
+      pronames().then(res => {
+        this.projectList = res.data.data
+      })
+    },
 
     handleSearch() {
       projectr(this.searchForm.title).then(res => {
-        const data = res.data.data
-        this.data = data
+        this.data = res.data.data
+
       })
     },
 
     handleReset() {
-      projectlist().then(res => {
-        const data = res.data.data
-        this.data = data
-      })
+      this.getprolist()
     },
 
     remove(v) {
       projectde(v.id).then(res => {
         this.$Message.success("删除成功！");
-        this.getlist()
+        this.getprolist()
       })
     },
 
@@ -467,33 +558,21 @@ export default {
       this.modal2 = false
     },
 
-    // sure(name) {
-    //   debugger
-    //   this.$refs[name].validate((valid) => {
-    //     if (valid) {
-    //       const datas = {
-    //         'name': this.crenvs.name,
-    //         'envs': this.crenvs.stenvs,
-    //         'leader': this.crenvs.leader,
-    //         'desc': this.crenvs.desc
-    //       }
-    //       projectcr(datas).then(res => {
-    //         this.getlist()
-    //         this.modal1 = false
-    //         this.$Message.success('创建项目成功!');
-    //       })
-    //     }
-    //   })
-    // },
-    sure() {
-      const datas = {
+    sure(name) {
+      this.$refs[name].validate((valid) => {
+        if (valid) {
+          const datas = {
             'name': this.crenvs.name,
             'envs': this.crenvs.stenvs,
             'leader': this.crenvs.leader,
             'desc': this.crenvs.desc
           }
-      projectcr(datas).then(res => {
-        console.log(res)
+          projectcr(datas).then(res => {
+            this.modal1 = false
+            this.$Message.success('项目新增成功！')
+            this.getprolist()
+          })
+        }
       })
     },
 
@@ -501,21 +580,26 @@ export default {
       this.modal2 = true
       this.project_id = v.id
       this.crenvs2.name = v.name
-      this.crenvs2.publishapp = v.publish_app
-      this.crenvs2.tester = v.tester
+      this.crenvs2.leader = v.leader
       this.crenvs2.desc = v.desc
+      this.envsname2 = this.envsname
+      let list = []
+      for (let i = 0; i < v.envs.length; i++) {
+        list.push(v.envs[i].id)
+      }
+      this.crenvs2.stenvs = list
     },
     sure2(name) {
       const datas = {
         'name': this.crenvs2.name,
-        'publish_app': this.crenvs2.publishapp,
-        'tester': this.crenvs2.tester,
+        'leader': this.crenvs2.leader,
+        'envs': this.crenvs2.stenvs,
         'desc': this.crenvs2.desc
       }
       this.$refs[name].validate((valid) => {
         if (valid) {
-          projectup(this.project_id, datas).then(res => {
-            this.getlist()
+          projectup(this.project_id, JSON.stringify(datas)).then(res => {
+            this.getprolist()
             this.modal2 = false
             this.$Message.success('修改项目成功!');
           })
@@ -523,9 +607,93 @@ export default {
       })
     },
 
-    enable() {
-      // this.$router.push('')
+    module_list() {
+      modulelist().then(res => {
+        this.moduledata = res.data.data
+      })
     },
+
+    moduproj() {
+      findmodule(this.crenvs.stenvs).then(res => {
+        let data = res.data.data
+        data = data.map((item) => {
+          return {
+            id: item.id,
+            title: item.name,
+            parent: item.parent,
+            floor: item.floor,
+            expand: true,
+            selected: true,
+          }
+        })
+        this.Treedata = data
+        console.log(this.Treedata)
+
+
+      })
+    },
+
+    renderTree(h, {root, node, data}) {
+      return h("div", {
+            style: {
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%'
+            },
+          },
+          [
+            h("span", {}, data.title),
+            h('span', [
+              h('Button', {
+                props: Object.assign({}, this.buttonProps, {
+                  icon: 'ios-add',
+                }),
+                style: {
+                  border:'none',
+                  color:'#2D8CF0'
+                },
+                on: {
+                  click: () => {
+                    this.append(data)
+                  }
+                }
+              }),
+
+                h('Button', {
+                props: Object.assign({}, this.buttonProps, {
+                  icon: 'md-create',
+                }),
+                style: {
+                  border:'none',
+                  color:'#2D8CF0'
+                },
+                on: {
+                  click: () => {
+                    this.append(data)
+                  }
+                }
+              }),
+
+                h('Button', {
+                props: Object.assign({}, this.buttonProps, {
+                  icon: 'md-remove',
+                }),
+                style: {
+                  border:'none',
+                  color:'#ED4014'
+                },
+                on: {
+                  click: () => {
+                    this.append(data)
+                  }
+                }
+              })
+            ])
+
+          ]
+      )
+    }
   },
   watch: {},
   filters: {}
