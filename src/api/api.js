@@ -136,3 +136,12 @@ export function findmodule(id) {
     data: {'projectId':id},
   })
 }
+
+// 创建根模块
+export function moduleadd(data) {
+  return request({
+    url: '/moduleadd/',
+    method: 'post',
+    data
+  })
+}

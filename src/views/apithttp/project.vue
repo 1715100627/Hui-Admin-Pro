@@ -211,15 +211,55 @@
                 <Drawer title="创建模块" placement="left" draggable :mask-closable="false" v-model="modal3" :mask=false>
 
                   <div>
-                    <Select v-model="crenvs.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
-                            @on-change="moduproj(crenvs.stenvs)">
+                    <Select v-model="cremodule.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
+                            @on-change="moduproj(cremodule.stenvs)">
                       <Option v-for="item in projectList" :value="item.id" :key="item.name">{{ item.name }}</Option>
                     </Select>
                     <div style="border-bottom: 1px solid #e8eaec;margin:18px 0">
                     </div>
                   </div>
-                  <Button long size='small' type="primary" v-if="Treedata.length === 0  ? false : true">创建根模块</Button>
+                  <Button long size='small' type="primary" v-if="cremodule.stenvs!=undefined &&  cremodule.stenvs != '' ? true : false" @click="modulemodal=true">创建根模块</Button>
                   <Tree empty-text="请先选择项目" :data="Treedata" :render="renderTree" class="demo-tree-render"></Tree>
+
+                  <Modal
+                    width="520"
+                    v-model="modulemodal"
+                    title="创建模块">
+                  <Form ref="moduleModal" :model="moduleModal" :rules="ruleValimodule">
+                    <div>
+                      <FormItem label="模块名称" prop="name">
+                        <Input
+                            type="text"
+                            v-model="moduleModal.name"
+                            clearable
+                            style="width: 380px"
+                        />
+                      </FormItem>
+                    </div>
+                    <div>
+                      <FormItem label="所属项目" prop="project">
+                        <Select v-model="moduleModal.project" style="width:380px">
+                          <Option v-for="(item, key) in modulename" :value="item.id" :key="key">{{ item.name }}</Option>
+                        </Select>
+                      </FormItem>
+                    </div>
+
+                    <div>
+                      <FormItem label="备注" style="margin-left: 38px;">
+                        <Input
+                            type="textarea"
+                            v-model="moduleModal.desc"
+                            rows="5"
+                            style="width: 380px"
+                        />
+                      </FormItem>
+                    </div>
+                  </Form>
+                  <div slot="footer">
+                    <Button @click="modulecancel">取消</Button>
+                    <Button @click="modulesure('moduleModal')" type="primary">确定</Button>
+                  </div>
+                </Modal>
                 </Drawer>
               </div>
             </div>
@@ -234,6 +274,10 @@
                   sortable="custom"
                   ref="table"
               >
+                <template slot-scope="{ row,index }" slot="project">
+                  <samp>
+                    {{ row.project.name }}</samp>
+                </template>
               </Table>
             </div>
           </div>
@@ -254,7 +298,8 @@ import {
   projectde,
   projectcr,
   projectup,
-  findmodule
+  findmodule,
+  moduleadd
 } from '../../api/api'
 import MarkPoptip from '../../views/apithttp/poptip';
 
@@ -264,11 +309,13 @@ export default {
   modal_loading: false,
   data() {
     return {
+      childmodule:[],
       Treedata: [],
       proenvsnames: [],
       stenvs: '',
       envsname: [],
       envsname2: [],
+      modulename:[],
       setpname: '',
       projectList: [],
       title1: true,
@@ -285,9 +332,19 @@ export default {
         leader: '',
         desc: ''
       },
+      cremodule:{
+        stenvs:''
+      },
+      moduleModal:{
+        name:'',
+        project:'',
+        desc:'',
+        parent:''
+      },
       modal1: false,
       modal2: false,
       modal3: false,
+      modulemodal:false,
       data: [],
       moduledata: [],
       enterTitle: '',
@@ -404,7 +461,7 @@ export default {
         },
         {
           title: "所属项目",
-          key: 'project',
+          slot: 'project',
           align: "center",
           minWidth: 125,
           width: 350,
@@ -497,6 +554,15 @@ export default {
         leader: [
           {required: true, message: '请填写负责人', trigger: 'blur'},
         ],
+      },
+
+      ruleValimodule: {
+        name: [
+          {required: true, message: '请输入项目名称', trigger: 'blur'}
+        ],
+        project: [
+          {required: true, message: '请选择所属项目', trigger: 'blur', type: 'number'},
+        ],
       }
     }
   },
@@ -516,7 +582,6 @@ export default {
       })
     },
     clickme() {
-      console.log(this.Treedata === '')
       this.modal3 = !this.modal3
     },
     getprolist() {
@@ -529,6 +594,7 @@ export default {
     proname() {
       pronames().then(res => {
         this.projectList = res.data.data
+        this.modulename = res.data.data
       })
     },
 
@@ -556,6 +622,10 @@ export default {
 
     cancel2() {
       this.modal2 = false
+    },
+
+    modulecancel(){
+      this.modulemodal = false
     },
 
     sure(name) {
@@ -607,6 +677,41 @@ export default {
       })
     },
 
+    modulesure(name) {
+      const datas = {
+        'name': this.moduleModal.name,
+        'project': this.moduleModal.project,
+        'desc': this.moduleModal.desc,
+        'parent':this.moduleModal.parent
+
+      }
+      this.$refs[name].validate((valid => {
+        if (valid){
+          debugger
+          if (this.childmodule.id === ''){
+            moduleadd(datas).then(res => {
+            this.modulemodal = false
+            this.$Message.success('创建根模块成功')
+            this.module_list()
+          })
+          }else {
+            const datas2 = {
+              'name': this.moduleModal.name,
+              'project': this.moduleModal.project,
+              'desc': this.moduleModal.desc,
+              'parent':this.childmodule.id
+            }
+            moduleadd(datas2).then(res => {
+            this.modulemodal = false
+            this.$Message.success('创建子模块成功')
+            this.module_list()
+          })
+          }
+
+        }
+      }))
+    },
+
     module_list() {
       modulelist().then(res => {
         this.moduledata = res.data.data
@@ -614,7 +719,8 @@ export default {
     },
 
     moduproj() {
-      findmodule(this.crenvs.stenvs).then(res => {
+      if (this.cremodule.stenvs){
+        findmodule(this.cremodule.stenvs).then(res => {
         let data = res.data.data
         data = data.map((item) => {
           return {
@@ -627,73 +733,85 @@ export default {
           }
         })
         this.Treedata = data
-        console.log(this.Treedata)
-
-
       })
+
+      }else {
+        this.Treedata = []
+      }
+
     },
 
     renderTree(h, {root, node, data}) {
-      return h("div", {
-            style: {
-              display: 'flex',
+      return h('span',{class: ['ivu-tree-title'],style: {
+              display: 'inline-block',
               justifyContent: 'space-between',
               alignItems: 'center',
-              width: '100%'
-            },
-          },
-          [
-            h("span", {}, data.title),
-            h('span', [
+              width: '100%',
+
+            },},[
+              h('span', {class:'ivu-tree-title'}, data.title),
               h('Button', {
-                props: Object.assign({}, this.buttonProps, {
-                  icon: 'ios-add',
-                }),
-                style: {
-                  border:'none',
-                  color:'#2D8CF0'
-                },
-                on: {
-                  click: () => {
-                    this.append(data)
-                  }
-                }
-              }),
-
-                h('Button', {
-                props: Object.assign({}, this.buttonProps, {
-                  icon: 'md-create',
-                }),
-                style: {
-                  border:'none',
-                  color:'#2D8CF0'
-                },
-                on: {
-                  click: () => {
-                    this.append(data)
-                  }
-                }
-              }),
-
-                h('Button', {
-                props: Object.assign({}, this.buttonProps, {
-                  icon: 'md-remove',
-                }),
-                style: {
-                  border:'none',
-                  color:'#ED4014'
-                },
-                on: {
-                  click: () => {
-                    this.append(data)
-                  }
-                }
-              })
+                    props: Object.assign({}, this.buttonProps, {
+                      icon: 'md-remove',
+                    }),
+                    style: {
+                      borderStyle: 'none',
+                      backgroundColor:'transparent',
+                      color: '#ED4014',
+                      width:'25px',
+                      height:'25px',
+                      float:'right',
+                    },
+                    on: {
+                      click: () => {
+                        this.append(data)
+                      }
+                    }
+                  }),
+              h('Button', {
+                    props: Object.assign({}, this.buttonProps, {
+                      icon: 'md-create',
+                    }),
+                    style: {
+                      border: 'none',
+                      backgroundColor:'transparent',
+                      color: '#2D8CF0',
+                      width:'25px',
+                      height:'25px',
+                      float:'right',
+                    },
+                    on: {
+                      click: () => {
+                        this.append(data)
+                      }
+                    }
+                  }),
+              h('Button', {
+                    props: Object.assign({}, this.buttonProps, {
+                      icon: 'ios-add',
+                    }),
+                    style: {
+                      border: 'none',
+                      color: '#2D8CF0',
+                      backgroundColor:'transparent',
+                      width:'25px',
+                      height:'25px',
+                      float:'right',
+                    },
+                    on: {
+                      click: () => {
+                        this.appendmodule(data)
+                      }
+                    }
+                  }),
             ])
+    },
 
-          ]
-      )
-    }
+    // 创建子模块
+    appendmodule (data) {
+      this.childmodule = data
+      this.modulemodal = true
+    },
   },
   watch: {},
   filters: {}
