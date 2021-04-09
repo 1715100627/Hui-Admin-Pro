@@ -49,9 +49,16 @@
 
         <div style="display: flex;justify-content: space-between">
           <p>接口列表</p>
-          <Button type="primary" @click="modal1 = true">展开创建接口</Button>
-            <Drawer title="创建接口" placement="left" v-model="modal1">
-              <Input v-model="value2" placeholder="项目名称" />
+          <Button type="primary" @click="modal1 = !modal1">{{ modal1 ? '收起创建模块' : '展开创建模块' }}</Button>
+            <Drawer title="创建接口" placement="left" v-model="modal1" draggable :mask-closable="false" :mask=false>
+              <div>
+                    <Select v-model="creapi.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
+                            @on-change="moduproj(creapi.stenvs)">
+                      <Option v-for="item in setapilist" :value="item.id" :key="item.name">{{ item.name }}</Option>
+                    </Select>
+                    <div style="border-bottom: 1px solid #e8eaec;margin:18px 0">
+                    </div>
+                  </div>
             </Drawer>
       </div>
       <div class="pageContent flexC">
@@ -61,7 +68,11 @@
             :data="data"
             sortable="custom"
             ref="table"
-        ></Table>
+        >
+          <template slot-scope="{ row }" slot="prject|api">
+            <strong>{{ row.project.name }} - {{ row.module.name }}</strong>
+          </template>
+        </Table>
       </div>
     </div>
   </div>
@@ -78,6 +89,10 @@ export default {
   modal_loading: false,
   data() {
     return {
+      setapilist:[],
+      creapi:{
+        stenvs: ''
+      },
       projectnames:[],
       pnames:'', //搜索已选的项目名
       project_id: '',
@@ -156,8 +171,8 @@ export default {
         width: 260,
         },
         {
-        title: "所属项目",
-        key: "project_id",
+        title: "项目|模块",
+        slot: "prject|api",
         align: "center",
         sortType: "desc",
         width: 260,

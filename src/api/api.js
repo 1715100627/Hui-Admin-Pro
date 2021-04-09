@@ -145,3 +145,29 @@ export function moduleadd(data) {
     data
   })
 }
+
+// 查询项目下模块
+export function modulenames(id) {
+  return request({
+    url: '/module/'+id+'/names/',
+    method: 'get',
+  })
+}
+
+
+// 修改模块
+export function updatamodule(id,data) {
+  return request({
+    url: '/moduleadd/' + id + '/',
+    method: 'put',
+    data
+  })
+}
+
+// 删除模块
+export function dedatamodule(id) {
+  return request({
+    url: '/moduleadd/' + id + '/',
+    method: 'delete',
+  })
+}

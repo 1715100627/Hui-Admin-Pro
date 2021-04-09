@@ -26,6 +26,7 @@ service.interceptors.request.use(config => {
     error => {
         // debug
         console.log(error)
+        alert(error)
         return Promise.reject(error)
     }
 )
@@ -35,8 +36,7 @@ service.interceptors.response.use(
     response => {
         const res = response.data
 
-        if (res.code !== 200) {
-            Message.warning(res.msg || 'Error')
+        if (res.code !== 200 && response.status !=204) {
             return Promise.reject(new Error(res.msg || 'Error'))
         } else {
             return res
@@ -45,7 +45,7 @@ service.interceptors.response.use(
     error => {
         // debug
         console.log('err' + error)
-        Message.error(res.msg || 'Error')
+        message.error(res.msg || 'Error')
         return Promise.reject(error)
     }
 )
