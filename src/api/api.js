@@ -104,10 +104,11 @@ export function pronames() {
 }
 
 // 获取接口列表
-export function apilist() {
+export function apilist(data) {
   return request({
-    url: '/interfaces/',
+    url: `/interfaces/`,
     method: 'get',
+    params:data
   })
 }
 
@@ -169,5 +170,51 @@ export function dedatamodule(id) {
   return request({
     url: '/moduleadd/' + id + '/',
     method: 'delete',
+  })
+}
+
+
+// 创建接口
+export function crinter(data) {
+  return request({
+    url: '/interfaadd/',
+    method: 'post',
+    data
+  })
+}
+
+// 编辑接口
+export function upinter(id,data) {
+  return request({
+    url: '/interfaadd/'+id+'/',
+    method: 'put',
+    data
+  })
+}
+
+// 接口搜索
+export function interreads(data) {
+  return request({
+    url: '/interfaces/reads/',
+    method: 'post',
+    data: data
+  })
+}
+
+
+// 删除接口
+export function interfacede(id) {
+  return request({
+    url: '/interfaces/' + id + '/',
+    method: 'delete'
+  })
+}
+
+
+// 用例列表
+export function testcaselist() {
+  return request({
+    url: '/testcases/',
+    method: 'get'
   })
 }

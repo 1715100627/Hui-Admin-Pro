@@ -144,6 +144,7 @@
               </div>
 
             </div>
+
             <!--            项目列表-->
             <div class="pageContent">
               <Table
@@ -218,6 +219,7 @@
                     <div style="border-bottom: 1px solid #e8eaec;margin:18px 0">
                     </div>
                   </div>
+
                   <Button long size='small' type="primary"
                           v-if="cremodule.stenvs!=undefined &&  cremodule.stenvs != '' ? true : false"
                           @click="modulemodal=true">创建根模块
@@ -242,7 +244,7 @@
                       <div>
                         <FormItem label="所属项目" prop="project">
                           <Select v-model="moduleModal.project" style="width:380px">
-                            <Option v-for="(item, key) in modulename" :value="item.id" :key="key">{{
+                            <Option v-for="(item, key) in projectList" :value="item.id" :key="key">{{
                                 item.name
                               }}
                             </Option>
@@ -369,7 +371,7 @@ export default {
       stenvs: '',
       envsname: [],
       envsname2: [],
-      modulename: [],
+      ponameslist: [],
       upmodulename:[],
       upmodule_id:'',
       setpname: '',

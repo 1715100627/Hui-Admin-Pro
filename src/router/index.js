@@ -70,6 +70,17 @@ export const constantRoutes = [
                 },
                 component: () => import("@/views/apithttp/httpapi")
             },
+
+            {
+                path: "/testcase",
+                name: "testcase",
+                meta: {
+                    hide: false,
+                    title: "用例|场景",
+                    permission: ['admin']
+                },
+                component: () => import("@/views/apithttp/testcase")
+            },
         ]
     },
 

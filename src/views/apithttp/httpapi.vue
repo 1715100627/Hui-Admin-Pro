@@ -6,8 +6,8 @@
       </div>
       <div class="pageHead flexC">
         <Form ref="searchForm" :model="searchForm" inline :label-width="80">
-          <FormItem label="所属项目" prop="name">
-            <Select v-model="pnames" style="width:200px" clearable>
+          <FormItem label="所属项目" prop="project">
+            <Select v-model="searchForm.project" style="width:200px" clearable>
               <Option v-for="(item, key) in projectnames" :value="item.id" :key="key">{{ item.name }}</Option>
             </Select>
           </FormItem>
@@ -15,17 +15,17 @@
           <FormItem label="接口名称" prop="name">
             <Input
                 type="text"
-                v-model="searchForm.title"
+                v-model="searchForm.name"
                 placeholder="请输入接口名称"
                 clearable
                 style="width: 200px"
             />
           </FormItem>
 
-          <FormItem label="请求url" prop="name">
+          <FormItem label="请求url" prop="url">
             <Input
                 type="text"
-                v-model="searchForm.title"
+                v-model="searchForm.url"
                 placeholder="请输入url"
                 clearable
                 style="width: 200px"
@@ -37,7 +37,7 @@
              margin-right: 10px;"
             >搜索
             </Button>
-            <Button @click="handleReset">重置</Button>
+            <Button @click="handleReset('searchForm')">重置</Button>
           </FormItem>
         </Form>
       </div>
@@ -50,51 +50,333 @@
         <div style="display: flex;justify-content: space-between">
           <p>接口列表</p>
           <Button type="primary" @click="modal1 = !modal1">{{ modal1 ? '收起创建模块' : '展开创建模块' }}</Button>
-            <Drawer title="创建接口" placement="left" v-model="modal1" draggable :mask-closable="false" :mask=false>
-              <div>
-                    <Select v-model="creapi.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
-                            @on-change="moduproj(creapi.stenvs)">
-                      <Option v-for="item in setapilist" :value="item.id" :key="item.name">{{ item.name }}</Option>
-                    </Select>
-                    <div style="border-bottom: 1px solid #e8eaec;margin:18px 0">
+          <Drawer title="创建接口" placement="left" v-model="modal1" draggable :mask-closable="false" :mask=false>
+            <div>
+              <Select v-model="creapi.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
+                      @on-change="apiprnames(creapi.stenvs)">
+                <Option v-for="item in setapilist" :value="item.id" :key="item.name">{{ item.name }}</Option>
+              </Select>
+              <div style="border-bottom: 1px solid #e8eaec;margin:18px 0">
+              </div>
+            </div>
+
+            <Tree empty-text="请先选择项目" :data="Treedata" :render="renderTree" class="demo-tree-render"></Tree>
+
+            <!--              创建接口-->
+            <Modal v-model="cremodel" fullscreen title="创建接口">
+              <Tabs value="name1">
+                <TabPane label="基础信息" name="name1">
+                  <Form ref="InsterModal" :model="InsterModal" :rules="ruleValiinter">
+                    <div>
+                      <FormItem label="接口名称" prop="name" style="margin-left: 20px;">
+                        <Input
+                            type="text"
+                            v-model="InsterModal.name"
+                            clearable
+                            style="width: 1750px;"
+                        />
+                      </FormItem>
                     </div>
-                  </div>
-            </Drawer>
+
+                    <div>
+                      <FormItem label="运行环境" prop="envs" style="margin-left: 30px;">
+                        <Select v-model="InsterModal.envs" style="width:1750px">
+                          <Option v-for="(item, key) in envsnames" :value="item.id" :key="key">{{ item.name }}
+                          </Option>
+                        </Select>
+                      </FormItem>
+                    </div>
+
+                    <div style="overflow: hidden">
+                      <FormItem label="所属项目" prop="project" style="float:left;margin-left: 20px;">
+                      </FormItem>
+                      <Select v-model="InsterModal.project" style="width:825px;float:left">
+                        <Option v-for="(item, key) in prjectname" :value="item.id" :key="key">{{ item.name }}
+                        </Option>
+                      </Select>
+
+                      <FormItem label="所属模块" prop="module" style="float:left;margin-left: 20px;">
+                      </FormItem>
+                      <Select v-model="InsterModal.module" style="width:825px;">
+                        <Option v-for="(item, key) in modulename" :value="item.id" :key="key">{{ item.name }}
+                        </Option>
+                      </Select>
+                    </div>
+
+
+                    <FormItem label="请求URL" prop="url" style="margin-left: 20px">
+                      <Input style="width: 1750px" v-model="InsterModal.url">
+
+                        <Select v-model="InsterModal.method" slot="prepend" style="width: 80px">
+                          <Option value="POST">Post</Option>
+                          <Option value="GET">Get</Option>
+                        </Select>
+
+                      </Input>
+                    </FormItem>
+
+
+                    <FormItem label="备注" style="margin-left: 58px;">
+                      <Input
+                          type="textarea"
+                          v-model="InsterModal.desc"
+                          :rows=10
+                          style="width: 1750px"
+                      />
+                    </FormItem>
+                  </Form>
+
+
+                </TabPane>
+                <TabPane label="Headers参数" name="name2">
+                  <template>
+                    <vue-json-editor
+                        style="height: 740px"
+                        v-model="headersmodle"
+                        :showBtns="false"
+                        :mode="'code'"
+                        lang="zh"
+                    />
+                  </template>
+                </TabPane>
+
+                <TabPane label="Body参数" name="name3">
+                  <template>
+                    <label style="padding-right: 20px;">参数类型</label>
+                    <RadioGroup v-model="method">
+                      <Radio label="Json"></Radio>
+                      <Radio label="Data"></Radio>
+                    </RadioGroup>
+
+                    <vue-json-editor
+                        style="height: 700px;margin-top: 20px;"
+                        v-model="bodymodle"
+                        :showBtns="false"
+                        :mode="'code'"
+                        lang="zh"
+                    />
+                  </template>
+                </TabPane>
+                <TabPane label="用例期望结果" name="name4">
+                  <template>
+                    <vue-json-editor
+                        style="height: 740px"
+                        v-model="exmodle"
+                        :showBtns="false"
+                        :mode="'code'"
+                        lang="zh"
+                    />
+                  </template>
+                </TabPane>
+              </Tabs>
+              <div slot="footer">
+                <Button @click="cremodel = false">取消</Button>
+                <Button @click="creatinter('InsterModal')" type="primary">确定</Button>
+              </div>
+            </Modal>
+
+<!--              编辑接口-->
+            <Modal v-model="cremodel2" fullscreen title="编辑接口">
+              <Tabs value="name1">
+                <TabPane label="基础信息" name="name1">
+                  <Form ref="InsterModal2" :model="InsterModal2" :rules="ruleValiinter2">
+                    <div>
+                      <FormItem label="接口名称" prop="name" style="margin-left: 20px;">
+                        <Input
+                            type="text"
+                            v-model="InsterModal2.name"
+                            clearable
+                            style="width: 1750px;"
+                        />
+                      </FormItem>
+                    </div>
+
+                    <div>
+                      <FormItem label="运行环境" prop="envs" style="margin-left: 30px;">
+                        <Select v-model="InsterModal2.envs" style="width:1750px">
+                          <Option v-for="(item, key) in envsnames" :value="item.id" :key="key">{{ item.name }}
+                          </Option>
+                        </Select>
+                      </FormItem>
+                    </div>
+
+                    <div style="overflow: hidden">
+                      <FormItem label="所属项目" prop="project" style="float:left;margin-left: 20px;">
+                      </FormItem>
+                      <Select v-model="InsterModal2.project" style="width:825px;float:left">
+                        <Option v-for="(item, key) in prjectname" :value="item.id" :key="key">{{ item.name }}
+                        </Option>
+                      </Select>
+
+                      <FormItem label="所属模块" prop="module" style="float:left;margin-left: 20px;">
+                      </FormItem>
+                      <Select v-model="InsterModal2.module" style="width:825px;">
+                        <Option v-for="(item, key) in modulename" :value="item.id" :key="key">{{ item.name }}
+                        </Option>
+                      </Select>
+                    </div>
+
+
+                    <FormItem label="请求URL" prop="url" style="margin-left: 20px">
+                      <Input style="width: 1750px" v-model="InsterModal2.url">
+
+                        <Select v-model="InsterModal2.method" slot="prepend" style="width: 80px">
+                          <Option value="POST">Post</Option>
+                          <Option value="GET">Get</Option>
+                        </Select>
+
+                      </Input>
+                    </FormItem>
+
+
+                    <FormItem label="备注" style="margin-left: 58px;">
+                      <Input
+                          type="textarea"
+                          v-model="InsterModal2.desc"
+                          :rows=10
+                          style="width: 1750px"
+                      />
+                    </FormItem>
+                  </Form>
+
+
+                </TabPane>
+                <TabPane label="Headers参数" name="name2">
+                  <template>
+                    <vue-json-editor
+                        style="height: 740px"
+                        v-model="headersmodle2"
+                        :showBtns="false"
+                        :mode="'code'"
+                        lang="zh"
+                    />
+                  </template>
+                </TabPane>
+
+                <TabPane label="Body参数" name="name3">
+                  <template>
+                    <label style="padding-right: 20px;">参数类型</label>
+                    <RadioGroup v-model="method2">
+                      <Radio label="Json"></Radio>
+                      <Radio label="Data"></Radio>
+                    </RadioGroup>
+
+                    <vue-json-editor
+                        style="height: 700px;margin-top: 20px;"
+                        v-model="bodymodle2"
+                        :showBtns="false"
+                        :mode="'code'"
+                        lang="zh"
+                    />
+                  </template>
+                </TabPane>
+              </Tabs>
+              <div slot="footer">
+                <Button @click="cremodel2 = false">取消</Button>
+                <Button @click="creatinter2('InsterModal2')" type="primary">确定</Button>
+              </div>
+            </Modal>
+
+          </Drawer>
+        </div>
+
       </div>
-      <div class="pageContent flexC">
-        <Table
-            border
-            :columns="columns"
-            :data="data"
-            sortable="custom"
-            ref="table"
-        >
-          <template slot-scope="{ row }" slot="prject|api">
-            <strong>{{ row.project.name }} - {{ row.module.name }}</strong>
-          </template>
-        </Table>
-      </div>
+
+      <div class="pageContent">
+          <Table
+              border
+              :columns="columns"
+              :data="data"
+              sortable="custom"
+              ref="table"
+          >
+            <template slot-scope="{ row }" slot="prject|api">
+              <strong>{{ row.project.name }} - {{ row.module.name }}</strong>
+            </template>
+          </Table>
+        </div>
+
     </div>
-  </div>
   </div>
 </template>
 
 <script>
-import {pronames, projectr,apilist, envupdate, projectde, projectcr, projectup} from '../../api/api'
+import {
+  pronames,
+  projectr,
+  apilist,
+  projectlist,
+  interfacede,
+  projectcr,
+  projectup,
+  findmodule,
+  envlist,
+  modulelist,
+  crinter,
+  upinter,
+  interreads
+} from '../../api/api'
 import MarkPoptip from '../../views/apithttp/poptip';
+import vueJsonEditor from 'vue-json-editor'
 
 
 export default {
   name: "project_list",
+  components: {vueJsonEditor},
   modal_loading: false,
   data() {
     return {
-      setapilist:[],
-      creapi:{
+      interfase_id:'',
+      method: "Json",
+      method2: "Json",
+      InsterModal: {
+        name: '',
+        project: '',
+        envs: '',
+        module: '',
+        url: '',
+        method: 'POST',
+        desc: ''
+      },
+      InsterModal2: {
+        name: '',
+        project: '',
+        envs: '',
+        module: '',
+        url: '',
+        method: 'POST',
+        desc: ''
+      },
+      headersmodle: {
+        "Content-Type": "application/json"
+      },
+      headersmodle2: {
+        "Content-Type": "application/json"
+      },
+      bodymodle: {},
+      bodymodle2: {},
+      exmodle: {
+        "output": [],
+        "validate": [
+          {
+            "check": "status_code",
+            "expect": 200,
+            "comparator": "eq"
+          }
+        ]
+      },
+      prjectname: [],
+      modulename: [],
+      envsnames: [],
+      cremodel: false,
+      cremodel2: false,
+      Treedata: [],
+      setapilist: [],
+      creapi: {
         stenvs: ''
       },
-      projectnames:[],
-      pnames:'', //搜索已选的项目名
+      projectnames: [],
+      pnames: '', //搜索已选的项目名
       project_id: '',
       crenvs: {
         name: '',
@@ -113,14 +395,9 @@ export default {
       data: [],
       enterTitle: '',
       searchForm: {
-        title: ''
-        // 搜索框初始化对象
-        // pageNumber: 1, // 当前页数
-        // pageSize: 10, // 页面大小
-        // sort: "createTime", // 默认排序字段
-        // order: "desc", // 默认排序方式
-        // startDate: "", // 起始时间
-        // endDate: "", // 终止时间
+        project:'',
+        name: '',
+        url:''
       },
       columns: [
         {
@@ -164,25 +441,25 @@ export default {
           width: 260,
         },
         {
-        title: "Body参数示例",
-        key: "request_data",
-        align: "center",
-        sortType: "desc",
-        width: 260,
+          title: "Body参数示例",
+          key: "request_data",
+          align: "center",
+          sortType: "desc",
+          width: 260,
         },
         {
-        title: "项目|模块",
-        slot: "prject|api",
-        align: "center",
-        sortType: "desc",
-        width: 260,
+          title: "项目|模块",
+          slot: "prject|api",
+          align: "center",
+          sortType: "desc",
+          width: 260,
         },
         {
-        title: "测试人员",
-        key: "tester",
-        align: "center",
-        sortType: "desc",
-        width: 260,
+          title: "测试人员",
+          key: "tester",
+          align: "center",
+          sortType: "desc",
+          width: 260,
         },
         {
           title: "操作",
@@ -247,11 +524,11 @@ export default {
                       },
                     },
                   },
-                  "创建接口"
+                  "创建用例"
               )
 
-          ])
-            ;
+            ])
+                ;
 
           },
         },
@@ -277,17 +554,100 @@ export default {
         tester: [
           {required: true, message: '请填写测试人员信息', trigger: 'blur'},
         ],
+      },
+      ruleValiinter: {
+        name: [
+          {required: true, message: '请输入项目名称', trigger: 'blur'}
+        ],
+        project: [
+          {required: true, message: '请选择所属项目', trigger: 'blur', type: 'number'},
+        ],
+        module: [
+          {required: true, message: '请选择所属模块', trigger: 'blur', type: 'number'},
+        ],
+        url: [
+          {required: true, message: '请输入请求地址', trigger: 'blur'},
+        ],
+      },
+      ruleValiinter2: {
+        name: [
+          {required: true, message: '请输入项目名称', trigger: 'blur'}
+        ],
+        project: [
+          {required: true, message: '请选择所属项目', trigger: 'blur', type: 'number'},
+        ],
+        module: [
+          {required: true, message: '请选择所属模块', trigger: 'blur', type: 'number'},
+        ],
+        url: [
+          {required: true, message: '请输入请求地址', trigger: 'blur'},
+        ],
       }
     }
   },
   created() {
     this.projectname();
     this.getlist();
+    this.getpolist();
+    this.envlist();
+    this.modulelist();
   },
   mounted() {
   },
   computed: {},
   methods: {
+    renderTree(h, {root, node, data}) {
+      return h('span', {
+            class: ['ivu-tree-title'], style: {
+              display: 'inline-block',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+            },
+          },
+          [
+            h('span', {class: 'ivu-tree-title'}, data.title),
+            h('Button', {
+              props: Object.assign({}, this.buttonProps, {
+                icon: 'md-add',
+              }),
+              style: {
+                border: 'none',
+                color: '#2D8CF0',
+                backgroundColor: 'transparent',
+                width: '25px',
+                height: '25px',
+                float: 'right',
+              },
+              on: {
+                click: () => {
+                  this.crinter(data)
+                }
+              }
+            }),
+          ]);
+    },
+
+    envlist() {
+      envlist().then(res => {
+        this.envsnames = res.data.data
+      })
+    },
+
+    modulelist() {
+      modulelist().then(res => {
+        const data = res.data.data
+        this.modulename = data
+      })
+    },
+
+    getpolist() {
+      projectlist().then(res => {
+        this.setapilist = res.data.data
+        this.prjectname = res.data.data
+      })
+    },
+
     projectname() {
       pronames().then(res => {
         this.projectnames = res.data.data
@@ -302,21 +662,19 @@ export default {
     },
 
     handleSearch() {
-      projectr(this.searchForm.title).then(res => {
+      apilist(this.searchForm).then(res => {
         const data = res.data.data
         this.data = data
       })
     },
 
-    handleReset() {
-      projectlist().then(res => {
-        const data = res.data.data
-        this.data = data
-      })
+    handleReset(name) {
+      this.getlist()
+      this.$refs[name].resetFields();
     },
 
     remove(v) {
-      projectde(v.id).then(res => {
+      interfacede(v.id).then(res => {
         this.$Message.success("删除成功！");
         this.getlist()
       })
@@ -330,53 +688,115 @@ export default {
       this.modal2 = false
     },
 
-    sure(name) {
-      this.$refs[name].validate((valid) => {
-        if (valid) {
-          const datas = {
-            'name': this.crenvs.name,
-            'publish_app': this.crenvs.publishapp,
-            'tester': this.crenvs.tester,
-            'desc': this.crenvs.desc
-          }
-          projectcr(datas).then(res => {
-            this.getlist()
-            this.modal1 = false
-            this.$Message.success('创建项目成功!');
-          })
-        }
-      })
-    },
 
     edit(name, v) {
-      this.modal2 = true
-      this.project_id = v.id
-      this.crenvs2.name = v.name
-      this.crenvs2.publishapp = v.publish_app
-      this.crenvs2.tester = v.tester
-      this.crenvs2.desc = v.desc
+      this.interfase_id = v.id
+      this.cremodel2 = true
+      this.InsterModal2.name = v.name
+      this.InsterModal2.envs = v.envs
+      this.InsterModal2.project = v.project.id
+      this.InsterModal2.module = v.module.id
+      this.InsterModal2.url = v.url
+      this.InsterModal2.method = v.method
+      this.InsterModal2.desc = v.desc
+      this.headersmodle2 = JSON.parse(v.headers)
+      this.bodymodle2 = JSON.parse(v.request_data)
+      this.method2 = v.request_data_type
     },
-    sure2(name) {
-      const datas = {
-        'name': this.crenvs2.name,
-        'publish_app': this.crenvs2.publishapp,
-        'tester': this.crenvs2.tester,
-        'desc': this.crenvs2.desc
-      }
-      this.$refs[name].validate((valid) => {
-        if (valid) {
-          projectup(this.project_id, datas).then(res => {
-            this.getlist()
-            this.modal2 = false
-            this.$Message.success('修改项目成功!');
-          })
-        }
-      })
-    },
+
 
     enable() {
       // this.$router.push('')
     },
+
+    apiprnames() {
+      if (this.creapi.stenvs) {
+        findmodule(this.creapi.stenvs).then(res => {
+          let data = res.data.data
+          data = data.map((item) => {
+            return {
+              id: item.id,
+              title: item.name,
+              parent: item.parent,
+              project: item.project,
+              floor: item.floor,
+              desc: item.desc,
+              expand: true,
+              selected: true,
+            }
+          })
+          let arrayToTree = require("array-to-tree");
+          this.Treedata = arrayToTree(data, {
+            parentProperty: "parent",
+            childrenProperty: "children",
+            customID: "id",
+          });
+        })
+      } else {
+        this.Treedata = []
+      }
+    },
+
+    crinter(data) {
+      this.cremodel = true
+      this.InsterModal.project = data.project
+      this.InsterModal.module = data.id
+
+    },
+
+    creatinter(name) {
+      let datas = {
+        "name": this.InsterModal.name,
+        "envs": this.InsterModal.envs,
+        "project": this.InsterModal.project,
+        "module": this.InsterModal.module,
+        "url": this.InsterModal.url,
+        "method": this.InsterModal.method,
+        "desc": this.InsterModal.desc,
+        "tester": "测试人员",
+        "headers": JSON.stringify(this.headersmodle),
+        "request_data": JSON.stringify(this.bodymodle),
+        "request_data_type": this.method,
+        "expect_result": this.exmodle
+      }
+      this.$refs[name].validate((valid) => {
+        if (valid) {
+
+          crinter(datas).then(res => {
+            this.cremodel = false
+            this.$Message.success('创建接口成功！')
+            this.$refs[name].resetFields();
+            this.getlist();
+          })
+        }
+      })
+    },
+
+    creatinter2(name) {
+      let datas = {
+        "name": this.InsterModal2.name,
+        "envs": this.InsterModal2.envs,
+        "project": this.InsterModal2.project,
+        "module": this.InsterModal2.module,
+        "url": this.InsterModal2.url,
+        "method": this.InsterModal2.method,
+        "desc": this.InsterModal2.desc,
+        "tester": "测试人员",
+        "headers": JSON.stringify(this.headersmodle2),
+        "request_data": JSON.stringify(this.bodymodle2),
+        "request_data_type": this.method2,
+      }
+      this.$refs[name].validate((valid) => {
+        if (valid) {
+          upinter(this.interfase_id,datas).then(res => {
+            this.cremodel2 = false
+            this.$Message.success('修改接口成功！')
+            this.$refs[name].resetFields();
+            this.getlist();
+          })
+        }
+      })
+    }
   },
   watch: {},
   filters: {}
@@ -384,6 +804,10 @@ export default {
 </script>
 
 <style lang="less">
+.jsoneditor-vue {
+  height: 100%;
+}
+
 .user_list-page {
   .pageContent {
     & > ul {
