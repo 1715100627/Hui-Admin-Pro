@@ -81,6 +81,60 @@ export const constantRoutes = [
                 },
                 component: () => import("@/views/apithttp/testcase")
             },
+
+            {
+                path: "/testcase_reports",
+                name: "testcase_reports",
+                meta: {
+                    hide: false,
+                    title: "测试结果",
+                    permission: ['admin']
+                },
+                component: () => import("@/views/apithttp/testcase_reports")
+            },
+
+            {
+                path: "/testcase_reports_details",
+                name: "testcase_reports_details",
+                meta: {
+                    hide: true,
+                    title: "测试结果",
+                    permission: ['admin']
+                },
+                component: () => import("@/views/apithttp/testcase_reports_details")
+            },
+
+            {
+                path: "/testsuite_reports_details",
+                name: "testsuite_reports_details",
+                meta: {
+                    hide: true,
+                    title: "测试场景结果",
+                    permission: ['admin']
+                },
+                component: () => import("@/views/apithttp/testsuite_reports_details")
+            },
+
+            {
+                path: "/reports",
+                name: "reports",
+                meta: {
+                    hide: true,
+                    title: "测试报告",
+                    permission: ['admin']
+                },
+                component: () => import("@/views/apithttp/reports")
+            },
+
+             {
+                path: "/test",
+                name: "test",
+                meta: {
+                    title: "测试",
+                    permission: ['admin']
+                },
+                component: () => import("@/views/apithttp/test")
+            },
         ]
     },
 

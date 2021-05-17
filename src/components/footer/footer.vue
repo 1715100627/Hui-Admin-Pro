@@ -12,7 +12,7 @@
             <span>专业版</span>
         </div>
         <div class="flexR">
-            <span>Copyright © {{year}} 曾小晖个人设计</span>
+            <span>Copyright © {{year}}个人设计</span>
         </div>
     </div>
 

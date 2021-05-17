@@ -1,10 +1,11 @@
 import request from './request'
 
 // 获取环境列表
-export function envlist() {
+export function envlist(data) {
   return request({
     url: '/envs/',
     method: 'get',
+    params:data
   })
 }
 
@@ -53,10 +54,11 @@ export function envsupdate(id,data) {
 }
 
 // 获取项目列表
-export function projectlist() {
+export function projectlist(data) {
   return request({
     url: '/projects/',
     method: 'get',
+    params:data
   })
 }
 
@@ -113,10 +115,11 @@ export function apilist(data) {
 }
 
 // 获取模块列表
-export function modulelist() {
+export function modulelist(data) {
   return request({
     url: '/module/',
     method: 'get',
+    params:data
   })
 }
 
@@ -212,9 +215,148 @@ export function interfacede(id) {
 
 
 // 用例列表
-export function testcaselist() {
+export function testcaselist(data) {
+  return request({
+    url: '/testcaseslist/',
+    method: 'get',
+    params:data
+  })
+}
+
+// 创建用例
+export function createstcase(data) {
   return request({
     url: '/testcases/',
-    method: 'get'
+    method: 'post',
+    data:data,
+  })
+}
+
+// 用例调试
+export function testdebug(data) {
+  return request({
+    url: '/testcases/debug/',
+    method: 'post',
+    data:data,
+  })
+}
+
+// 更新用例
+export function uptest(id,data) {
+  return request({
+    url: '/testcases/'+id+'/',
+    method: 'put',
+    data:data,
+  })
+}
+
+
+// 部分更新用例
+export function partial(id,data) {
+  return request({
+    url: '/testcases/'+id+'/',
+    method: 'PATCH',
+    data:data,
+  })
+}
+
+
+// 用例报告列表
+export function test_reports(data) {
+  return request({
+    url: '/testcase_reports/',
+    method: 'get',
+    params:data
+  })
+}
+
+// 场景报告列表
+export function testsuite_reports(data) {
+  return request({
+    url: '/testsuite_reports/',
+    method: 'get',
+    params:data
+  })
+}
+
+// 场景报告ID查询
+export function testsuite_reportsId(id) {
+  return request({
+    url: '/testsuite_reports/'+id+'/',
+    method: 'get',
+  })
+}
+
+// 用例详情页
+export function get_test_reports(id) {
+  return request({
+    url: '/testcase_reports/'+id+'/',
+    method: 'get',
+  })
+}
+
+// 用例报告页
+export function reports(data) {
+  return request({
+    url: '/reports_details/',
+    method: 'get',
+    params:data
+  })
+}
+
+
+
+// 用例批量执行
+export function testcase_Batch(data) {
+  return request({
+    url: '/testcases/batch/',
+    method: 'post',
+    data:data
+  })
+}
+
+
+// 场景列表
+export function testsuitelist() {
+  return request({
+    url: '/testsuite/',
+    method: 'get',
+  })
+}
+
+// 创建场景
+export function crtestsuite(data) {
+  return request({
+    url: '/testsuitec/',
+    method: 'post',
+    data:data
+  })
+}
+
+// 组织场景
+export function testsuite2testcase(data) {
+  return request({
+    url: '/testsuite2testcase/',
+    method: 'post',
+    data:data
+  })
+}
+
+
+// 组织场景列表
+export function gettestsuite2testcase(data) {
+  return request({
+    url: '/testsuite2testcase/',
+    method: 'get',
+    params:data
+  })
+}
+
+// 场景批量执行
+export function testsuite_Batch(data) {
+  return request({
+    url: '/testsuite/batch/',
+    method: 'post',
+    data:{'testsuites':data}
   })
 }

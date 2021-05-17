@@ -164,7 +164,7 @@
                     :style="{height: (!isTabsShow?'calc(100vh - 64px)':'calc(100vh - 108px)'), margin: (!isTabsShow ? '24px 0 24px 24px':'0 0 24px 24px') }"
                     class="main_content flexC">
                     <router-view v-if="isRouterViewShow"></router-view>
-                    <Footer></Footer>
+<!--                    <Footer></Footer>-->
                 </Content>
                 <Drawer v-model="optionDrawer" class="optionDrawer">
                     <Divider slot="header" class="header">主题风格设置</Divider>

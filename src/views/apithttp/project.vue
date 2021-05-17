@@ -32,7 +32,7 @@
 
               <div style="display: flex;justify-content: space-between">
                 <p>项目列表</p>
-                <Button type="primary" @click="modal1 = true">创建项目</Button>
+                <Button type="primary" size="small" @click="modal1 = true">创建项目</Button>
                 <!--        创建项目-->
                 <Modal
                     width="950"
@@ -52,8 +52,25 @@
                     <div>
                       <FormItem label="运行环境" prop="stenvs">
                         <Select v-model="crenvs.stenvs" multiple style="width:260px">
-                          <Option v-for="(item, key) in envsname" :value="item.id" :key="key">{{ item.name }}</Option>
+                          <Option v-for="(item, index) in envsname" :value="item">{{ item.name }}</Option>
                         </Select>
+                      </FormItem>
+                    </div>
+
+                    <div>
+                      <FormItem label="默认运行环境" prop="defaultenvs">
+<!--                        <Radio v-for="(item, key) in crenvs.stenvs" :value="item.id" :key="key">{{ item.name }}</Radio>-->
+
+
+<!--                        <RadioGroup v-model="crenvs.defaultenvs">-->
+<!--                          <template  v-for="(item, index) in crenvs.stenvs" >-->
+<!--                            <Radio :label="index" >{{ item.id }}</Radio>-->
+<!--                          </template>-->
+<!--                        </RadioGroup>-->
+
+                        <RadioGroup v-model="crenvs.defaultenvs" @on-change="radiovalue(item)">
+                            <Radio v-for="(item, index) in crenvs.stenvs" :label="item.id">{{ item.name }}</Radio>
+                        </RadioGroup>
                       </FormItem>
                     </div>
 
@@ -145,7 +162,7 @@
 
             </div>
 
-            <!--            项目列表-->
+            <!--            项目列表渲染-->
             <div class="pageContent">
               <Table
                   border
@@ -153,6 +170,7 @@
                   :data="data"
                   sortable="custom"
                   ref="table"
+                  size="small"
               >
                 <template slot-scope="{ row }" slot="name">
 
@@ -164,6 +182,19 @@
                     {{ item.name }}</samp>
                 </template>
               </Table>
+              <div>
+                <Page
+                    :total="projectpage.total"
+                    :page-size="projectpage.size"
+                    :current="projectpage.index"
+                    show-total
+                    show-elevator
+                    show-sizer
+                    @on-change="changeSize"
+                    @on-page-size-change="changePage"
+                    style="margin-top: 20px;"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -208,8 +239,9 @@
             <div class="pageHead">
               <div style="display: flex;justify-content: space-between">
                 <p>模块列表</p>
-                <Button type="primary" @click="clickme">{{ createmodule ? '收起创建模块' : '展开创建模块' }}</Button>
-                <Drawer title="创建模块" placement="left" draggable :mask-closable="false" v-model="createmodule" :mask=false>
+                <Button type="primary" size="small" @click="clickme">{{ createmodule ? '收起创建模块' : '展开创建模块' }}</Button>
+                <Drawer title="创建模块" placement="left" draggable :mask-closable="false" v-model="createmodule"
+                        :mask=false>
 
                   <div>
                     <Select v-model="cremodule.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
@@ -317,7 +349,7 @@
             </div>
 
 
-            <!--      列表渲染-->
+            <!--      模块列表渲染-->
             <div class="pageContent">
               <Table
                   border
@@ -325,12 +357,27 @@
                   :data="moduledata"
                   sortable="custom"
                   ref="table"
+                  size="small"
               >
                 <template slot-scope="{ row,index }" slot="project">
                   <samp>
-                    {{ row.project.name }}</samp>
+                    {{ row.project.name }}
+                  </samp>
                 </template>
               </Table>
+              <div>
+                <Page
+                    :total="modulepage.total"
+                    :page-size="modulepage.size"
+                    :current="modulepage.index"
+                    show-total
+                    show-elevator
+                    show-sizer
+                    @on-change="modulechangeSize"
+                    @on-page-size-change="modulechangePage"
+                    style="margin-top: 20px;"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -354,7 +401,7 @@ import {
   moduleadd,
   modulenames,
   updatamodule,
-  dedatamodule
+  dedatamodule, envlist
 
 } from '../../api/api'
 import MarkPoptip from '../../views/apithttp/poptip';
@@ -365,6 +412,16 @@ export default {
   modal_loading: false,
   data() {
     return {
+      projectpage: {
+        index: 1,
+        size: 10,
+        total: 50
+      },
+      modulepage: {
+        index: 1,
+        size: 10,
+        total: 50
+      },
       childmodule: [],
       Treedata: [],
       proenvsnames: [],
@@ -372,8 +429,8 @@ export default {
       envsname: [],
       envsname2: [],
       ponameslist: [],
-      upmodulename:[],
-      upmodule_id:'',
+      upmodulename: [],
+      upmodule_id: '',
       setpname: '',
       projectList: [],
       title1: true,
@@ -382,6 +439,7 @@ export default {
         name: '',
         stenvs: [],
         leader: '',
+        defaultenvs: '',
         desc: ''
       },
       crenvs2: {
@@ -409,7 +467,7 @@ export default {
       modal2: false,
       createmodule: false,
       modulemodal: false,
-      upmodal:false,
+      upmodal: false,
       data: [],
       moduledata: [],
       enterTitle: '',
@@ -448,7 +506,6 @@ export default {
           title: "备注",
           key: "desc",
           align: "center",
-          sortType: "desc",
           width: 400,
           render: (h, params) => {
             return h('div', params.row.desc || '-')
@@ -458,7 +515,6 @@ export default {
           title: "负责人",
           key: "leader",
           align: "center",
-          sortType: "desc",
           width: 290,
         },
         {
@@ -535,7 +591,6 @@ export default {
           title: "测试人员",
           key: "tester",
           align: "center",
-          sortType: "tester",
           width: 400,
           render: (h, params) => {
             return h('div', params.row.tester || '-')
@@ -545,7 +600,6 @@ export default {
           title: "备注",
           key: "desc",
           align: "center",
-          sortType: "desc",
           width: 290,
         },
         {
@@ -605,6 +659,9 @@ export default {
         stenvs: [
           {required: true, message: '请选择运行环境', trigger: 'blur', type: 'array'},
         ],
+        // defaultenvs: [
+        //   {required: true, message: '请选择默认运行环境', trigger: 'blur'},
+        // ],
         leader: [
           {required: true, message: '请填写负责人', trigger: 'blur'},
         ],
@@ -643,6 +700,9 @@ export default {
   },
   computed: {},
   methods: {
+    radiovalue(item) {
+      console.log(item)
+    },
     envnames() {
       envnamelist().then(res => {
         this.envsname = res.data.data
@@ -651,13 +711,45 @@ export default {
     clickme() {
       this.createmodule = !this.createmodule
     },
+
     getprolist() {
-      projectlist().then(res => {
-        this.data = res.data.data
+      let data = {
+        'size': this.projectpage.size,
+        'page': this.projectpage.index
+      }
+      projectlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.projectpage.total = res.count
       })
 
 
     },
+    changeSize(e) {
+      let data = {
+        'size': this.projectpage.size,
+        'page': e
+      }
+      envlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.projectpage.total = res.count
+
+      })
+    },
+    changePage(e) {
+      let data = {
+        'size': e,
+        'page': this.projectpage.index
+      }
+      envlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.projectpage.total = res.count
+      })
+    },
+
+
     proname() {
       pronames().then(res => {
         this.projectList = res.data.data
@@ -706,11 +798,24 @@ export default {
 
     sure(name) {
       this.$refs[name].validate((valid) => {
+        debugger
+        let stenvs = this.crenvs.stenvs
+        let data  = []
+        for (let i=0; i<stenvs.length; i++){
+          // delete stenvs[i].base_url
+          // delete stenvs[i].create_time
+          // delete stenvs[i].desc
+          // delete stenvs[i].is_active
+          // delete stenvs[i].name
+          data.push(stenvs[i].id)
+        }
+
         if (valid) {
           const datas = {
-            'name': this.crenvs.name,
-            'envs': this.crenvs.stenvs,
-            'leader': this.crenvs.leader,
+            'name': this.crenvs.name,  //项目名
+            'envs': data, //所选环境
+            'leader': this.crenvs.leader, //负责人
+            'default_envs': JSON.stringify(this.crenvs.defaultenvs),    // 默认环境
             'desc': this.crenvs.desc
           }
           projectcr(datas).then(res => {
@@ -736,7 +841,7 @@ export default {
       this.crenvs2.stenvs = list
     },
 
-    moduleedit(name,v){
+    moduleedit(name, v) {
       this.upmodule_id = v.id
       this.upmodal = true
       this.upmoduleModal.name = v.name
@@ -801,9 +906,40 @@ export default {
       }))
     },
 
+
     module_list() {
-      modulelist().then(res => {
-        this.moduledata = res.data.data
+      let data = {
+        'size': this.modulepage.size,
+        'page': this.modulepage.index
+      }
+      modulelist(data).then(res => {
+        // this.moduledata = res.data.data
+        let data = res.data.data
+        this.moduledata = data
+        this.modulepage.total = res.count
+      })
+    },
+    modulechangeSize(e) {
+      let data = {
+        'size': this.modulepage.size,
+        'page': e
+      }
+      envlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.projectpage.total = res.count
+
+      })
+    },
+    modulechangePage(e) {
+      let data = {
+        'size': e,
+        'page': this.modulepage.index
+      }
+      envlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.projectpage.total = res.count
       })
     },
 
@@ -816,7 +952,7 @@ export default {
               id: item.id,
               title: item.name,
               parent: item.parent,
-              project:item.project,
+              project: item.project,
               floor: item.floor,
               desc: item.desc,
               expand: true,
@@ -905,7 +1041,6 @@ export default {
     },
 
 
-
     // 创建子模块
     appendmodule(data) {
       this.childmodule = data
@@ -917,7 +1052,7 @@ export default {
       this.upmodal = true
       this.upmoduleModal.name = data.title
       this.upmoduleModal.project = data.project
-      this.upmoduleModal.desc =  data.desc
+      this.upmoduleModal.desc = data.desc
 
     },
 
@@ -925,11 +1060,11 @@ export default {
       this.$refs[name].validate((valid) => {
         if (valid) {
           const datas = {
-              'name': this.upmoduleModal.name,
-              'project': this.upmoduleModal.project,
-              'desc': this.upmoduleModal.desc
-            }
-          updatamodule(this.upmodule_id,datas).then(res => {
+            'name': this.upmoduleModal.name,
+            'project': this.upmoduleModal.project,
+            'desc': this.upmoduleModal.desc
+          }
+          updatamodule(this.upmodule_id, datas).then(res => {
             this.upmodal = false
             this.$Message.success('修改模块成功！')
             this.module_list()

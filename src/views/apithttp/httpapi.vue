@@ -49,7 +49,7 @@
 
         <div style="display: flex;justify-content: space-between">
           <p>接口列表</p>
-          <Button type="primary" @click="modal1 = !modal1">{{ modal1 ? '收起创建模块' : '展开创建模块' }}</Button>
+          <Button type="primary" size="small" @click="modal1 = !modal1">{{ modal1 ? '收起创建模块' : '展开创建模块' }}</Button>
           <Drawer title="创建接口" placement="left" v-model="modal1" draggable :mask-closable="false" :mask=false>
             <div>
               <Select v-model="creapi.stenvs" clearable style="width:200px;" prefix="logo-freebsd-devil"
@@ -289,12 +289,27 @@
               :data="data"
               sortable="custom"
               ref="table"
+              size="small"
           >
             <template slot-scope="{ row }" slot="prject|api">
               <strong>{{ row.project.name }} - {{ row.module.name }}</strong>
             </template>
           </Table>
+          <div>
+          <Page
+                  :total="page.total"
+                  :page-size= "page.size"
+                  :current="page.index"
+                  show-total
+                  show-elevator
+                  show-sizer
+                  @on-change="changeSize"
+                  @on-page-size-change="changePage"
+                  style="margin-top: 20px;"
+
+            />
         </div>
+      </div>
 
     </div>
   </div>
@@ -326,6 +341,11 @@ export default {
   modal_loading: false,
   data() {
     return {
+      page:{
+        index:1,
+        size:10,
+        total:50
+      },
       interfase_id:'',
       method: "Json",
       method2: "Json",
@@ -430,35 +450,30 @@ export default {
           title: "Headers参数示例",
           key: "headers",
           align: "center",
-          sortType: "desc",
           width: 260,
         },
         {
           title: "Body参数类型",
           key: "request_data_type",
           align: "center",
-          sortType: "desc",
           width: 260,
         },
         {
           title: "Body参数示例",
           key: "request_data",
           align: "center",
-          sortType: "desc",
           width: 260,
         },
         {
           title: "项目|模块",
           slot: "prject|api",
           align: "center",
-          sortType: "desc",
           width: 260,
         },
         {
           title: "测试人员",
           key: "tester",
           align: "center",
-          sortType: "desc",
           width: 260,
         },
         {
@@ -655,9 +670,37 @@ export default {
     },
 
     getlist() {
-      apilist().then(res => {
+      let data = {
+        'size':this.page.size,
+        'page':this.page.index
+      }
+      apilist(data).then(res => {
         const data = res.data.data
         this.data = data
+        this.page.total = res.count
+      })
+    },
+    changeSize(e) {
+      let data = {
+        'size':this.page.size,
+        'page':e
+      }
+      envlist(data).then(res =>{
+        let data = res.data.data
+        this.data = data
+        this.page.total = res.count
+
+      })
+    },
+    changePage(e){
+      let data = {
+        'size':e,
+        'page':this.page.index
+      }
+      envlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.page.total = res.count
       })
     },
 

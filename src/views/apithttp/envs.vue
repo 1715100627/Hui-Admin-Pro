@@ -43,7 +43,7 @@
 <!--        创建环境-->
         <div style="display: flex;justify-content: space-between">
           <p>环境列表</p>
-          <Button type="primary" @click="modal1 = true">创建环境</Button>
+          <Button type="primary" size="small" @click="modal1 = true">创建环境</Button>
 
           <Modal
               width="950"
@@ -164,14 +164,29 @@
             :data="data"
             sortable="custom"
             ref="table"
+            size="small"
         ></Table>
+      <div>
+        <Page
+                :total="page.total"
+                :page-size= "page.size"
+                :current="page.index"
+                show-total
+                show-elevator
+                show-sizer
+                @on-change="changeSize"
+                @on-page-size-change="changePage"
+                style="margin-top: 20px;"
+
+          />
+      </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {envlist, envreads, envupdate, envdelete, envcreate, envsupdate } from '../../api/api'
+import {envlist, envreads, envupdate, envdelete, envcreate, envsupdate, test_reports} from '../../api/api'
 import MarkPoptip from '../../views/apithttp/poptip';
 
 
@@ -180,6 +195,11 @@ export default {
   modal_loading:false,
   data() {
     return {
+      page:{
+        index:1,
+        size:10,
+        total:50
+      },
       envsid: '',
       crenvs:{
         name:'',
@@ -240,7 +260,6 @@ export default {
           title: "创建时间",
           key: "create_time",
           sortable: true,
-          sortType: "desc",
           width: 180,
         },
         {
@@ -409,8 +428,14 @@ export default {
   computed: {},
   methods: {
     getlist() {
-      envlist().then(res => {
-        this.data = res.data.data
+      let data = {
+        'size':this.page.size,
+        'page':this.page.index
+      }
+      envlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.page.total = res.count
       })
     },
 
@@ -506,6 +531,30 @@ export default {
         }
     })
     },
+
+    changeSize(e) {
+      let data = {
+        'size':this.page.size,
+        'page':e
+      }
+      envlist(data).then(res =>{
+        let data = res.data.data
+        this.data = data
+        this.page.total = res.count
+
+      })
+    },
+    changePage(e){
+      let data = {
+        'size':e,
+        'page':this.page.index
+      }
+      envlist(data).then(res => {
+        let data = res.data.data
+        this.data = data
+        this.page.total = res.count
+      })
+    }
   },
   watch: {},
   filters: {}
